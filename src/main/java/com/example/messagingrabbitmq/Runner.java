@@ -1,5 +1,7 @@
 package com.example.messagingrabbitmq;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -10,18 +12,21 @@ import org.springframework.stereotype.Component;
 public class Runner implements CommandLineRunner {
 
 	private final RabbitTemplate rabbitTemplate;
-	private final Receiver receiver;
 
-	public Runner(Receiver receiver, RabbitTemplate rabbitTemplate) {
-		this.receiver = receiver;
+	public Runner(RabbitTemplate rabbitTemplate) {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("Sending message...");
-		rabbitTemplate.convertAndSend(MessagingRabbitmqApplication.topicExchangeName, "foo.bar.baz", "Hello from RabbitMQ!");
-		receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		while (true) {
+			String message = reader.readLine();
+			if (message.equals("exit"))
+				break;
+			System.out.println("Sending...");
+			rabbitTemplate.convertAndSend(MessagingRabbitmqApplication.fanoutExchangeName, null, message);
+		}
 	}
 
 }

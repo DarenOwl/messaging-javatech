@@ -39,11 +39,10 @@ public class MessagingRabbitmqApplicationTest {
 	private Receiver receiver;
 
 	@Test
-	public void test() throws Exception {
+	public void test() {
 		try {
-			rabbitTemplate.convertAndSend(MessagingRabbitmqApplication.queueName,
+			rabbitTemplate.convertAndSend(MessagingRabbitmqApplication.fanoutExchangeName,
 					"Hello from RabbitMQ!");
-			receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
 		}
 		catch (AmqpConnectException e) {
 			// ignore - rabbit is not running
